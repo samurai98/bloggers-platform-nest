@@ -55,7 +55,7 @@ PostSchema.statics = {
   },
 
   async createPost(postData: CreatePost): Promise<PostDocument> {
-    const { postId, title, shortDescription, content, blogId, currentDate } = postData;
+    const { postId, title, shortDescription, content, blogId, currentDate, blogName } = postData;
 
     return new this({
       id: postId,
@@ -64,6 +64,7 @@ PostSchema.statics = {
       content,
       // userId: currentUserId,
       blogId,
+      blogName,
       createdAt: currentDate,
       reactions: [],
     });
