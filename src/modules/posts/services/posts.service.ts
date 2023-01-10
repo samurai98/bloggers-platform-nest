@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { generateId, getCurrentDateISO } from '../../../common/helpers/utils';
+import { generateId, getCurrentDateISO, sortByField } from '../../../common/helpers/utils';
 import { findPaginationEntities, ViewPagination } from '../../../common/pagination';
 import { BlogsService } from '../../blogs/services/blogs.service';
 import { CommentsService } from '../../comments/services/comments.service';
@@ -24,12 +24,14 @@ export class PostsService {
 
   async findAll(queryFilter: PostQueryDTO): Promise<ViewPagination<ViewPost>> {
     const { items, ...pagination } = await findPaginationEntities<Post>(this.postModel, queryFilter);
-    const posts: ViewPost[] = [];
+    let posts: ViewPost[] = [];
 
     for (const post of items) {
       const blogName = (await this.blogsService.findOne(post.blogId)).name;
       posts.push(postMapper({ ...post, blogName }));
     }
+
+    if (queryFilter.sortBy === 'blogName') posts = sortByField(posts, queryFilter.sortBy, queryFilter.sortDirection);
 
     return { ...pagination, items: posts };
   }

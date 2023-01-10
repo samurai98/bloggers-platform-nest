@@ -1,12 +1,12 @@
 import { FilterQuery, Model } from 'mongoose';
 
+import { getSortDirectionNumber } from '../helpers/utils';
+
 import { ViewPagination, PaginationQueryDTO } from '.';
 
 const getPagesCount = (totalCount: number, pageSize: number) => Math.ceil(totalCount / pageSize);
 
 const getSkipCount = (pageNumber: number, pageSize: number) => (pageNumber - 1) * pageSize;
-
-const getSortDirectionNumber = (sortDirection: string) => (sortDirection === 'asc' ? 1 : -1);
 
 interface DocumentModel<T> extends Model<T> {
   getFilter(search: Record<string, string>): FilterQuery<T>;
