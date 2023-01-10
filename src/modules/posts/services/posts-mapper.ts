@@ -3,7 +3,7 @@ import { LikesInfo } from '../../../common/types/reactions';
 import { Post } from '../schemas';
 import { ViewPost } from '../models/view-post';
 
-export const postMapper = (postDB: Post & { blogName: string }): ViewPost => {
+export const postMapper = (postDB: Post): ViewPost => {
   const { id, title, shortDescription, content, blogId, blogName, createdAt, reactions } = postDB;
 
   const likesCount = reactions.filter((reaction) => reaction.status === 'Like').length;

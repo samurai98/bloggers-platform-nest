@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { generateId, getCurrentDateISO, sortByField } from '../../../common/helpers/utils';
+import { generateId, getCurrentDateISO } from '../../../common/helpers/utils';
 import { findPaginationEntities, ViewPagination } from '../../../common/pagination';
 import { BlogsService } from '../../blogs/services/blogs.service';
 import { CommentsService } from '../../comments/services/comments.service';
@@ -24,16 +24,8 @@ export class PostsService {
 
   async findAll(queryFilter: PostQueryDTO): Promise<ViewPagination<ViewPost>> {
     const { items, ...pagination } = await findPaginationEntities<Post>(this.postModel, queryFilter);
-    let posts: ViewPost[] = [];
 
-    for (const post of items) {
-      const blogName = (await this.blogsService.findOne(post.blogId)).name;
-      posts.push(postMapper({ ...post, blogName }));
-    }
-
-    if (queryFilter.sortBy === 'blogName') posts = sortByField(posts, queryFilter.sortBy, queryFilter.sortDirection);
-
-    return { ...pagination, items: posts };
+    return { ...pagination, items: items.map((post) => postMapper(post)) };
   }
 
   async findOne(id: string): Promise<ViewPost | null> {
@@ -44,22 +36,24 @@ export class PostsService {
     const blogName = (await this.blogsService.findOne(post.blogId))?.name;
 
     blogName && (await post.save());
-    return blogName && postMapper({ ...post.toObject(), blogName });
+    return blogName && postMapper(post.toObject());
   }
 
   async create(postDto: CreatePostDto): Promise<ViewPost | null> {
-    const newPost = await this.postModel.createPost({
-      ...postDto,
-      postId: generateId(),
-      currentDate: getCurrentDateISO(),
-    });
+    const blogName = (await this.blogsService.findOne(postDto.blogId))?.name;
+    const newPost =
+      blogName &&
+      (await this.postModel.createPost({
+        ...postDto,
+        postId: generateId(),
+        currentDate: getCurrentDateISO(),
+        blogName,
+      }));
 
-    if (!newPost) return null;
-
-    const blogName = (await this.blogsService.findOne(newPost.blogId))?.name;
+    if (!newPost && blogName) return null;
 
     blogName && (await newPost.save());
-    return blogName && postMapper({ ...newPost.toObject(), blogName });
+    return blogName && postMapper(newPost.toObject());
   }
 
   async update(id: string, updateData: UpdatePostDto): Promise<boolean> {

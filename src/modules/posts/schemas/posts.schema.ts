@@ -24,6 +24,9 @@ export class Post {
   blogId: string;
 
   @Prop({ required: true })
+  blogName: string;
+
+  @Prop({ required: true })
   createdAt: string;
 
   @Prop(raw([reaction]))
