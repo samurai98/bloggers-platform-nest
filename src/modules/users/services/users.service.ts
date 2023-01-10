@@ -15,7 +15,10 @@ export class UsersService {
   constructor(@InjectModel(User.name) private userModel: UserDocumentModel) {}
 
   async findAll(queryFilter: UserQueryDTO): Promise<ViewPagination<ViewUser>> {
-    const { items, ...pagination } = await findPaginationEntities<User>(this.userModel, queryFilter);
+    const { items, ...pagination } = await findPaginationEntities<User>(this.userModel, {
+      ...queryFilter,
+      sortBy: `accountData.${queryFilter.sortBy}`,
+    });
 
     return { ...pagination, items: items.map((user) => userMapper(user)) };
   }
