@@ -4,9 +4,10 @@ import { Response } from 'express';
 type ErrorInfo = {
   statusCode: number;
   error: string;
-  message: string[];
+  message: ErrorMessage[];
 };
 
+export type ErrorMessage = { message: string; field: string };
 @Catch(BadRequestException)
 export class BadRequestExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
@@ -16,12 +17,9 @@ export class BadRequestExceptionFilter implements ExceptionFilter {
     const errorInfo = exception.getResponse() as ErrorInfo;
 
     if (typeof errorInfo === 'object' && Array.isArray(errorInfo.message))
-      response.status(status).json({
-        errorsMessages: errorInfo.message.map((mess) => ({
-          message: mess,
-          field: mess.split(' ')[0],
-        })),
-      });
+      response
+        .status(status)
+        .json({ errorsMessages: errorInfo.message.map(({ message, field }) => ({ message, field })) });
     else response.status(status).json({ statusCode: status });
   }
 }

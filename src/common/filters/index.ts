@@ -1,1 +1,1 @@
-export { BadRequestExceptionFilter } from './bad-request-exception.filter';
+export { BadRequestExceptionFilter, ErrorMessage } from './bad-request-exception.filter';

@@ -1,6 +1,7 @@
 import { PipeTransform, Injectable, ArgumentMetadata, BadRequestException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
+import { ErrorMessage } from '../filters';
 
 import { PaginationQueryDTO } from '../pagination';
 
@@ -16,7 +17,7 @@ export class QueryValidationPipe implements PipeTransform {
 
     if (errors.length > 0)
       throw new BadRequestException({
-        message: errors.map((error) => `${error.property} query error`),
+        message: errors.map<ErrorMessage>(({ property }) => ({ message: `${property} query error`, field: property })),
       });
 
     return object;
