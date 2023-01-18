@@ -16,7 +16,7 @@ import { CommentsModule } from './modules/comments/comments.module';
   providers: [],
   imports: [
     ConfigModule.forRoot({ load: [configuration] }),
-    MongooseModule.forRoot(configuration().MONGO_DB_URI),
+    MongooseModule.forRoot(configuration().database.MONGO_DB_URI),
     UsersModule,
     BlogsModule,
     PostsModule,
